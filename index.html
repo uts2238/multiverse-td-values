@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta charset="UTF-8" />
   <title>Multiverse tower defense (Unofficial)</title>
   <link rel="icon" href="https://tr.rbxcdn.com/180DAY-978c52d62ff45f811f9db0aa1579b7cc/256/256/Image/Webp/noFilter" />
@@ -17,6 +18,65 @@
       --win:#3cff9a;
       --lose:#ff4c4c;
       --fair:#ffeb3b;
+      @media (max-width: 768px) {
+
+  nav{
+    flex-direction:column;
+    gap:10px;
+    padding:12px;
+    text-align:center;
+  }
+
+  nav div{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:10px;
+  }
+
+  section{
+    padding:20px;
+  }
+
+  .hero h1{
+    font-size:22px;
+  }
+
+  .hero img{
+    width:90px;
+  }
+
+  .grid{
+    grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+    gap:12px;
+  }
+
+  .trade{
+    flex-direction:column;
+  }
+
+  .trade-side{
+    padding:15px;
+  }
+
+  .Unit img{
+    width:45px;
+  }
+
+  .add{
+    width:100%;
+    height:50px;
+    font-size:14px;
+  }
+
+  .discord-btn{
+    width:90%;
+    justify-content:center;
+    left:50%;
+    transform:translateX(-50%);
+  }
+
+}
     }
     *{box-sizing:border-box}
     body{
