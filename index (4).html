@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Multiverse tower defense (Unofficial)</title>
+  <link rel="icon" href="https://tr.rbxcdn.com/180DAY-978c52d62ff45f811f9db0aa1579b7cc/256/256/Image/Webp/noFilter" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root{
+      --bg:linear-gradient(135deg,#8a2be2,#2979ff,#1de9b6);
+      --panel:#11152a;
+      --card:#161b36;
+      --text:#e8ecf1;
+      --muted:#a1aacf;
+      --accent:#8a2be2;
+      --win:#3cff9a;
+      --lose:#ff4c4c;
+      --fair:#ffeb3b;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter,sans-serif;
+      background:var(--bg);
+      background-size:400% 400%;
+      animation:bgAnim 15s ease infinite;
+      color:var(--text);
+    }
+    @keyframes bgAnim{
+      0%{background-position:0 0}
+      50%{background-position:100% 100%}
+      100%{background-position:0 0}
+    }
+
+    nav{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:16px 40px;
+      background:rgba(0,0,0,.5);
+      border-radius:0 0 20px 20px;
+    }
+    nav b{font-size:18px}
+    nav button{
+      background:none;
+      border:none;
+      color:var(--muted);
+      margin-left:20px;
+      cursor:pointer;
+      font-size:14px;
+      font-weight:600;
+    }
+    nav button:hover{color:#fff}
+
+    section{display:none;padding:40px;max-width:1400px;margin:auto}
+    section.active{display:block}
+
+    .hero{text-align:center}
+    .hero img{width:120px;border-radius:20px;box-shadow:0 0 40px #fff}
+    .hero h1{
+      margin:20px 0 10px;
+      background:linear-gradient(90deg,#8a2be2,#2979ff,#1de9b6);
+      -webkit-background-clip:text;
+      color:transparent;
+      font-size:32px;
+    }
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px}
+    .value-card{background:rgba(0,0,0,.4);border-radius:18px;padding:16px}
+    .value-card img{width:100%;border-radius:14px}
+    .value-card b{display:block;margin-top:10px}
+    .value-card span{display:block;color:var(--muted);margin-top:6px;font-size:13px}
+
+    .trade{display:flex;flex-wrap:wrap;gap:30px}
+    .trade-side{
+      flex:1;
+      background:rgba(0,0,0,.5);
+      border-radius:24px;
+      padding:25px;
+      min-width:280px;
+    }
+
+    .Unit{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      background:rgba(0,0,0,.3);
+      border-radius:14px;
+      padding:12px;
+      margin-bottom:10px;
+      cursor:pointer;
+      position:relative;
+    }
+    .Unit img{width:60px;border-radius:12px;box-shadow:0 0 20px #fff}
+    .Unit .overlay{
+      position:absolute;
+      top:4px;
+      right:4px;
+      font-size:14px;
+      font-weight:bold;
+      color:#fff;
+      padding:2px 5px;
+      border-radius:4px;
+      background:shinyrod;
+    }
+    .Unit .value{
+      margin-left:auto;
+      font-weight:700;
+      color:#fff;
+    }
+
+    .variant-row{
+  display:flex;
+  gap:8px;
+  margin-top:10px;
+  flex-wrap:wrap;
+}
+.vbtn{
+  border:none;
+  padding:6px 10px;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:700;
+  font-size:12px;
+  background:rgba(255,255,255,.08);
+  color:var(--text);
+}
+.vbtn:hover{background:rgba(255,255,255,.15)}
+.vbtn.active{
+  background:var(--accent);
+  color:#000;
+}
+.value-line{
+  margin-top:8px;
+  color:var(--muted);
+  font-size:13px;
+}
+
+
+    .total{text-align:right;margin-top:12px;font-weight:600}
+
+    .add{
+      width:64px;height:64px;
+      border:none;
+      border-radius:12px;
+      background:var(--accent);
+      cursor:pointer;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      font-weight:600;
+      color:black;
+      margin-top:12px;
+    }
+
+    .result{text-align:center;font-size:26px;margin-top:30px}
+
+    .modal{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.75);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .15s ease;
+    }
+    .modal.show{opacity:1;pointer-events:auto}
+    .modal-box{
+      background:rgba(0,0,0,.8);
+      padding:25px;
+      border-radius:22px;
+      width:320px;
+    }
+    .modal-box label{display:block;margin-top:10px;color:var(--muted);font-size:13px}
+    .modal-box select,.modal-box input{
+      width:100%;
+      padding:10px;
+      margin-top:6px;
+      border-radius:10px;
+      border:none;
+      background:#222;
+      color:white;
+      outline:none;
+    }
+    .modal-box h3{margin:0 0 6px}
+
+    .discord-btn{
+      position:fixed;
+      bottom:24px;
+      left:50%;
+      transform:translateX(-50%);
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:12px 18px;
+      background:rgba(88,101,242,0.95);
+      border-radius:999px;
+      text-decoration:none;
+      box-shadow:0 0 25px rgba(88,101,242,0.6);
+      transition:transform .2s ease, box-shadow .2s ease;
+      z-index:999;
+    }
+    .discord-btn:hover{
+      transform:translateX(-50%) scale(1.08);
+      box-shadow:0 0 40px rgba(88,101,242,0.9);
+    }
+    .discord-btn img{
+      width:28px;
+      height:28px;
+      border-radius:50%;
+    }
+    .discord-btn span{
+      color:white;
+      font-weight:700;
+      font-size:14px;
+      white-space:nowrap;
+    }
+    .discord-btn.hide{display:none}
+  </style>
+</head>
+
+<body>
+  <nav>
+    <b>Multiverse Tower Defense Values (Unofficial)</b>
+    <div>
+      <button type="button" onclick="show('home')">Home</button>
+      <button type="button" onclick="show('values')">Value List</button>
+      <button type="button" onclick="show('trade')">Trade Calculator</button>
+    </div>
+  </nav>
+
+  <section id="home" class="active">
+    <div class="hero">
+      <img src="https://tr.rbxcdn.com/180DAY-f06f32670db53967237aaf6b2f86ace5/768/432/Image/Webp/noFilter" alt="Multiverse Tower Defense" />
+      <h1>Welcome to Multiverse Tower Defense Value list</h1>
+      <p>Check values, trade smart, win more!</p>
+      <p>1 value = 1k gems 💎</p>
+    </div>
+  </section>
+
+  <section id="values">
+    <h2>Unit Values</h2>
+    <div class="grid" id="valueGrid"></div>
+  </section>
+
+  <section id="trade">
+    <div class="trade">
+      <div class="trade-side" id="you">
+        <h3>Your Offer</h3>
+        <div class="list"></div>
+        <button class="add" type="button" onclick="openModal('you')">
+          <div style="font-size:28px;">+</div>
+          <div style="font-size:12px;">Add Unit</div>
+        </button>
+        <div class="total">Total: <span id="yt">0</span></div>
+      </div>
+
+      <div class="trade-side" id="them">
+        <h3>Their Offer</h3>
+        <div class="list"></div>
+        <button class="add" type="button" onclick="openModal('them')">
+          <div style="font-size:28px;">+</div>
+          <div style="font-size:12px;">Add Unit</div>
+        </button>
+        <div class="total">Total: <span id="tt">0</span></div>
+      </div>
+    </div>
+
+    <div class="result" id="res">Fair 🤝</div>
+  </section>
+
+  <div class="modal" id="modal">
+    <div class="modal-box">
+      <h3>Add Unit</h3>
+
+      <label>Unit</label>
+      <select id="UnitSelect"></select>
+
+      <label>Amount</label>
+      <input type="number" id="amt" value="1" min="1" />
+
+      <label>Signed?</label>
+      <select id="signed">
+        <option value="1">No</option>
+        <option value="1.15">Yes</option>
+      </select>
+
+<label>Shiny?</label>
+<select id="shiny">
+  <option value="1">No</option>
+  <option value="3">Yes</option>
+</select>
+      <button class="add" type="button" onclick="addUnit()">Add</button>
+    </div>
+  </div>
+
+  <a href="https://discord.gg/mE6hmf3yWM" target="_blank" class="discord-btn" id="discordBtn">
+    <img src="discord.png" alt="Discord" />
+    <span>Join our Discord!</span>
+  </a>
+
+ <script>
+const Units = [
+  {name:"Clown",img:"Clown.png",base:80,demand:9},
+  {name:"Korblox Deathwalker",img:"Korblox Deathwalker.png",base:225,demand:8},
+  {name:"Troll face",img:"Trollface.png",base:65,demand:7},
+  {name:"Air",img:"Air.png",base:480,demand:9},
+  {name:"Lightning splash",img:"lightningsplash.png",base:150,demand:9},
+  {name:"Floppa",img:"floppa.png",base:13,demand:5},
+  {name:"King Floppa",img:"kfloppa.png",base:50,demand:6},
+  {name:"Bob glove",img:"Bob.png",base:200,demand:5},
+  {name:"Overkill glove",img:"Overkill.png",base:150,demand:10},
+  {name:"Dragon Slayer",img:"Dragon.png",base:800,demand:10},
+  {name:"Samurai",img:"Samurai.png",base:150,demand:9},
+  {name:"Helper bot",img:"Helper.png",base:90,demand:8},
+  {name:"Rob Glove",img:"RobGlove.png",base:170,demand:8},
+  {name:"Cool floppa",img:"CoolFloppa.png",base:0,demand:0},
+  {name:"Dark Knight",img:"DarkKnight.png",base:70,demand:0},
+  {name:"Crimson Roblox",img:"crimsonrblx.png",base:70,demand:0},
+  {name:"Dead Bringer",img:"DeadBringer.png",base:40,demand:0},
+  {name:"Die Bringer",img:"DieBringer.png",base:60,demand:0},
+];
+
+const UnitsSH = [
+  {name:"Clown",img:"Clown.png",base:400,demand:10},
+  {name:"Korblox Deathwalker",img:"Korblox Deathwalker.png",base:1000,demand:10},
+  {name:"Troll face",img:"Trollface.png",base:300,demand:10},
+  {name:"Air",img:"Air.png",base:2000,demand:10},
+  {name:"Lightning splash",img:"lightningsplash.png",base:1250,demand:10},
+  {name:"Floppa",img:"floppa.png",base:0,demand:0},
+  {name:"King Floppa",img:"kfloppa.png",base:300,demand:10},
+  {name:"Bob glove",img:"Bob.png",base:2000,demand:10},
+  {name:"Overkill glove",img:"Overkill.png",base:0,demand:0},
+  {name:"Dragon Slayer",img:"Dragon.png",base:0,demand:0},
+  {name:"Samurai",img:"Samurai.png",base:1250,demand:10},
+  {name:"Helper bot",img:"Helper.png",base:300,demand:10},
+  {name:"Rob Glove",img:"RobGlove.png",base:2000,demand:10},
+  {name:"Cool floppa",img:"CoolFloppa.png",base:0,demand:0},
+  {name:"Dark Knight",img:"DarkKnight.png",base:130,demand:0},
+  {name:"Crimson Roblox",img:"crimsonrblx.png",base:150,demand:0},
+  {name:"Dead Bringer",img:"DeadBringer.png",base:50,demand:0},
+  {name:"Die Bringer",img:"DieBringer.png",base:75,demand:0},
+];
+
+const UnitsSI = [
+  {name:"Clown",img:"Clown.png",base:85,demand:9},
+  {name:"Korblox Deathwalker",img:"Korblox Deathwalker.png",base:230,demand:8},
+  {name:"Troll face",img:"Trollface.png",base:70,demand:7},
+  {name:"Air",img:"Air.png",base:485,demand:9},
+  {name:"Lightning splash",img:"lightningsplash.png",base:155,demand:9},
+  {name:"Floppa",img:"floppa.png",base:18,demand:5},
+  {name:"King Floppa",img:"kfloppa.png",base:55,demand:6},
+  {name:"Bob glove",img:"Bob.png",base:205,demand:5},
+  {name:"Overkill glove",img:"Overkill.png",base:155,demand:10},
+  {name:"Dragon Slayer",img:"Dragon.png",base:805,demand:10},
+  {name:"Samurai",img:"Samurai.png",base:155,demand:9},
+  {name:"Helper bot",img:"Helper.png",base:95,demand:8},
+  {name:"Rob Glove",img:"RobGlove.png",base:175,demand:8},
+  {name:"Cool floppa",img:"CoolFloppa.png",base:0,demand:0},
+  {name:"Dark Knight",img:"DarkKnight.png",base:75,demand:0},
+  {name:"Crimson Roblox",img:"crimsonrblx.png",base:75,demand:0},
+  {name:"Dead Bringer",img:"DeadBringer.png",base:45,demand:0},
+  {name:"Die Bringer",img:"DieBringer.png",base:65,demand:0},
+
+];
+
+const UnitsBH = [
+  {name:"Clown",img:"Clown.png",base:405,demand:10},
+  {name:"Korblox Deathwalker",img:"Korblox Deathwalker.png",base:1005,demand:10},
+  {name:"Troll face",img:"Trollface.png",base:305,demand:10},
+  {name:"Air",img:"Air.png",base:2005,demand:10},
+  {name:"Lightning splash",img:"lightningsplash.png",base:1255,demand:10},
+  {name:"Floppa",img:"floppa.png",base:0,demand:0},
+  {name:"King Floppa",img:"kfloppa.png",base:305,demand:10},
+  {name:"Bob glove",img:"Bob.png",base:2005,demand:10},
+  {name:"Overkill glove",img:"Overkill.png",base:0,demand:0},
+  {name:"Dragon Slayer",img:"Dragon.png",base:0,demand:0},
+  {name:"Samurai",img:"Samurai.png",base:1255,demand:10},
+  {name:"Helper bot",img:"Helper.png",base:305,demand:10},
+  {name:"Rob Glove",img:"RobGlove.png",base:2005,demand:10},
+  {name:"Cool floppa",img:"CoolFloppa.png",base:0,demand:0},
+  {name:"Dark Knight",img:"DarkKnight.png",base:135,demand:0},
+  {name:"Crimson Roblox",img:"crimsonrblx.png",base:155,demand:0},
+  {name:"Dead Bringer",img:"DeadBringer.png",base:55,demand:0},
+  {name:"Die Bringer",img:"DieBringer.png",base:80,demand:0},
+];
+
+
+    const valueGrid = document.getElementById("valueGrid");
+    const UnitSelect = document.getElementById("UnitSelect");
+    const modal = document.getElementById("modal");
+    const discordBtn = document.getElementById("discordBtn");
+
+    const yt = document.getElementById("yt");
+    const tt = document.getElementById("tt");
+    const res = document.getElementById("res");
+
+    const amt = document.getElementById("amt");
+    const signed = document.getElementById("signed");
+    const shny = document.getElementById("shiny");
+
+    let currentSide = "you";
+
+
+function rebuild(){
+  valueGrid.innerHTML = "";
+  UnitSelect.innerHTML = "";
+
+  console.log("Units loaded:", Units.length, Units.map(p => p?.name));
+
+  Units.forEach((p, i) => {
+    const o = document.createElement("option");
+    o.value = i;
+    o.textContent = p.name;
+    UnitSelect.appendChild(o);
+
+    const c = document.createElement("div");
+    c.className = "value-card";
+
+    const baseNum = +p.base || 0;
+
+    c.innerHTML = `
+      <img src="${p.img}" alt="${p.name}">
+      <b>${p.name}</b>
+
+      <div class="variant-row">
+        <button class="vbtn active" data-mode="normal">Normal</button>
+        <button class="vbtn" data-mode="shiny">shiny</button>
+        <button class="vbtn" data-mode="signed">Signed</button>
+        <button class="vbtn" data-mode="both">shiny + Signed</button>
+      </div>
+
+      <div class="value-line">
+        Value: <span class="shownVal">${baseNum.toFixed(2)}</span>
+        <span style="opacity:.75;"> | Demand: ${p.demand}/10</span>
+      </div>
+    `;
+
+    const shownVal = c.querySelector(".shownVal");
+    const buttons = [...c.querySelectorAll(".vbtn")];
+
+    buttons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        buttons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        const mode = btn.dataset.mode;
+        let list = Units;
+
+if (mode === "both") list = UnitsBH;
+else if (mode === "signed") list = UnitsSI;
+else if (mode === "shiny") list = UnitsSH;
+shownVal.textContent = list[i].base.toFixed(2);
+      });
+    });
+
+    valueGrid.appendChild(c);
+  });
+}
+
+rebuild();
+modal.addEventListener("click", (e) => {
+  if (e.target === modal) modal.classList.remove("show");
+});
+
+function openModal(side){
+  currentSide = side;
+  modal.classList.add("show");
+}
+
+function addUnit(){
+  const amtVal = +amt.value || 1;
+
+  const sig = +signed.value;
+  const shinyVal = +shiny.value;
+
+  // 🔥 clean list selection
+  let list = Units;
+
+  if (sig > 1 && shinyVal > 1) {
+    list = UnitsBH; // both
+  } else if (sig > 1) {
+    list = UnitsSI; // signed
+  } else if (shinyVal > 1) {
+    list = UnitsSH; // shiny
+  }
+
+  // 🔥 ALWAYS get correct unit safely
+  const index = +UnitSelect.value;
+  const p = list[index];
+
+  if (!p) return; // safety so it doesn't bug out
+
+  const val = (p.base * amtVal).toFixed(2);
+
+  // ✨ overlay
+  let overlay = "";
+  if (sig > 1) overlay += "✍️ ";
+  if (shinyVal > 1) overlay += "✨";
+
+  const el = document.createElement("div");
+  el.className = "Unit";
+  el.innerHTML = `
+    <img src="${p.img}" alt="${p.name}">
+    ${overlay ? `<div class="overlay">${overlay}</div>` : ""}
+    <div>
+      <b>${p.name} x${amtVal}</b>
+      <div style="color:var(--muted);font-size:13px;">Demand ${p.demand}/10</div>
+    </div>
+    <span class="value">${val}</span>
+  `;
+
+  el.onclick = () => { el.remove(); updateTotals(); };
+
+  document.querySelector(`#${currentSide} .list`).appendChild(el);
+
+  modal.classList.remove("show");
+  updateTotals();
+}
+function updateTotals(){
+  const sum = (side) =>
+    [...document.querySelectorAll(`#${side} .value`)]
+      .reduce((a,b)=> a + (+b.textContent || 0), 0);
+
+  const y = sum("you");
+  const t = sum("them");
+
+  yt.textContent = y.toFixed(2);
+  tt.textContent = t.toFixed(2);
+
+  const d = y - t;
+
+  res.textContent = d >= 0.6 ? "Lose 💀" : d <= -0.6 ? "Win 🤑" : "Fair 🤝";
+}
+
+function show(id){
+  document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+
+  if (id === "home") discordBtn.classList.remove("hide");
+  else discordBtn.classList.add("hide");
+}
+
+show("home");
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
