@@ -243,8 +243,11 @@
   </section>
 
   <section id="values">
-    <h2>Unit Values</h2>
-    <div class="grid" id="valueGrid"></div>
+<h2>Unit Values</h2>
+<div class="grid" id="unitGrid"></div>
+
+<h2 style="margin-top:40px;">Item Values</h2>
+<div class="grid" id="itemGrid"></div>
   </section>
 
   <section id="trade">
@@ -275,7 +278,13 @@
 
   <div class="modal" id="modal">
     <div class="modal-box">
-      <h3>Add Unit</h3>
+      <h3>Add Unit/Item</h3>
+
+        <label>Type</label>
+  <select id="type">
+    <option value="unit">Unit</option>
+    <option value="item">Item</option>
+  </select>
 
       <label>Unit</label>
       <select id="UnitSelect"></select>
@@ -298,7 +307,7 @@
     </div>
   </div>
 
-  <a href="https://discord.gg/mtd" target="_blank" class="discord-btn" id="discordBtn">
+  <a href="https://discord.gg/mE6hmf3yWM" target="_blank" class="discord-btn" id="discordBtn">
     <img src="discord.png" alt="Discord" />
     <span>Join our Discord!</span>
   </a>
@@ -390,7 +399,21 @@ const UnitsBH = [
 ];
 
 
-    const valueGrid = document.getElementById("valueGrid");
+const Items = [
+  {name:"Bob", img:"BobIT.png", base:5, demand:6},
+  {name:"Danek Frog", img:"DanekFrog.png", base:1, demand:2},
+  {name:"Blue Skull", img:"BlueSkull.png", base:60, demand:10},
+  {name:"Red Skull", img:"RedSkull.png", base:60, demand:7},
+  {name:"Gamepass VIP", img:"VipGamepass.png", base:15, demand:7},
+  {name:"Gamepass Shiny Hunter", img:"ShinyHunterGamepass.png", base:15, demand:6},
+  {name:"Gamepass Luck 2x", img:"Luck2xGamepass.png", base:10, demand:5},
+];
+
+const typeSelect = document.getElementById("type");
+typeSelect.addEventListener("change", populateSelect);
+
+const unitGrid = document.getElementById("unitGrid");
+const itemGrid = document.getElementById("itemGrid");
     const UnitSelect = document.getElementById("UnitSelect");
     const modal = document.getElementById("modal");
     const discordBtn = document.getElementById("discordBtn");
@@ -407,24 +430,18 @@ const UnitsBH = [
 
 
 function rebuild(){
-  valueGrid.innerHTML = "";
-  UnitSelect.innerHTML = "";
-
-  console.log("Units loaded:", Units.length, Units.map(p => p?.name));
+  unitGrid.innerHTML = "";
+  itemGrid.innerHTML = "";
+typeSelect.dispatchEvent(new Event("change"));
 
   Units.forEach((p, i) => {
-    const o = document.createElement("option");
-    o.value = i;
-    o.textContent = p.name;
-    UnitSelect.appendChild(o);
-
     const c = document.createElement("div");
     c.className = "value-card";
 
     const baseNum = +p.base || 0;
 
     c.innerHTML = `
-      <img src="${p.img}" alt="${p.name}">
+      <img src="${p.img}">
       <b>${p.name}</b>
 
       <div class="variant-row">
@@ -443,25 +460,82 @@ function rebuild(){
     const shownVal = c.querySelector(".shownVal");
     const buttons = [...c.querySelectorAll(".vbtn")];
 
+const row = c.querySelector(".variant-row");
+row.style.justifyContent = "center"; // center Normal
+
     buttons.forEach(btn => {
-      btn.addEventListener("click", () => {
+      btn.onclick = () => {
         buttons.forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
 
-        const mode = btn.dataset.mode;
         let list = Units;
+        const mode = btn.dataset.mode;
 
-if (mode === "both") list = UnitsBH;
-else if (mode === "signed") list = UnitsSI;
-else if (mode === "shiny") list = UnitsSH;
-shownVal.textContent = list[i].base.toFixed(2);
-      });
+        if (mode === "both") list = UnitsBH;
+        else if (mode === "signed") list = UnitsSI;
+        else if (mode === "shiny") list = UnitsSH;
+
+        shownVal.textContent = list[i].base.toFixed(2);
+      };
     });
 
-    valueGrid.appendChild(c);
+    unitGrid.appendChild(c);
   });
-}
 
+  Items.forEach((p, i) => {
+    const c = document.createElement("div");
+    c.className = "value-card";
+
+    const baseNum = +p.base || 0;
+
+    c.innerHTML = `
+      <img src="${p.img}">
+      <b>${p.name}</b>
+
+      <div class="variant-row">
+        <button class="vbtn active" data-mode="normal">Normal</button>
+        <button class="vbtn" data-mode="shiny">shiny</button>
+        <button class="vbtn" data-mode="signed">Signed</button>
+        <button class="vbtn" data-mode="both">shiny + Signed</button>
+      </div>
+
+      <div class="value-line">
+        Value: <span class="shownVal">${baseNum.toFixed(2)}</span>
+        <span style="opacity:.75;"> | Demand: ${p.demand}/10</span>
+      </div>
+    `;
+
+    const shownVal = c.querySelector(".shownVal");
+    const buttons = [...c.querySelectorAll(".vbtn")];
+
+buttons.forEach((btn, i) => {
+  if (i !== 0) btn.style.display = "none"; // hide shiny/signed/both
+});
+
+const row = c.querySelector(".variant-row");
+row.style.justifyContent = "center"; // center Normal
+
+    buttons.forEach(btn => {
+      btn.onclick = () => {
+        buttons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        let list = Items;
+        const mode = btn.dataset.mode;
+
+        if (mode === "both") list = ItemsBH;
+        else if (mode === "signed") list = ItemsSI;
+        else if (mode === "shiny") list = ItemsSH;
+
+        shownVal.textContent = list[i].base.toFixed(2);
+      };
+    });
+
+    itemGrid.appendChild(c);
+  });
+
+  populateSelect();
+}
 rebuild();
 modal.addEventListener("click", (e) => {
   if (e.target === modal) modal.classList.remove("show");
@@ -472,55 +546,7 @@ function openModal(side){
   modal.classList.add("show");
 }
 
-function addUnit(){
-  const amtVal = +amt.value || 1;
 
-  const sig = +signed.value;
-  const shinyVal = +shiny.value;
-
-  // 🔥 clean list selection
-  let list = Units;
-
-  if (sig > 1 && shinyVal > 1) {
-    list = UnitsBH; // both
-  } else if (sig > 1) {
-    list = UnitsSI; // signed
-  } else if (shinyVal > 1) {
-    list = UnitsSH; // shiny
-  }
-
-  // 🔥 ALWAYS get correct unit safely
-  const index = +UnitSelect.value;
-  const p = list[index];
-
-  if (!p) return; // safety so it doesn't bug out
-
-  const val = (p.base * amtVal).toFixed(2);
-
-  // ✨ overlay
-  let overlay = "";
-  if (sig > 1) overlay += "✍️ ";
-  if (shinyVal > 1) overlay += "✨";
-
-  const el = document.createElement("div");
-  el.className = "Unit";
-  el.innerHTML = `
-    <img src="${p.img}" alt="${p.name}">
-    ${overlay ? `<div class="overlay">${overlay}</div>` : ""}
-    <div>
-      <b>${p.name} x${amtVal}</b>
-      <div style="color:var(--muted);font-size:13px;">Demand ${p.demand}/10</div>
-    </div>
-    <span class="value">${val}</span>
-  `;
-
-  el.onclick = () => { el.remove(); updateTotals(); };
-
-  document.querySelector(`#${currentSide} .list`).appendChild(el);
-
-  modal.classList.remove("show");
-  updateTotals();
-}
 function updateTotals(){
   const sum = (side) =>
     [...document.querySelectorAll(`#${side} .value`)]
@@ -545,24 +571,94 @@ function show(id){
   else discordBtn.classList.add("hide");
 }
 
+function populateSelect(){
+  UnitSelect.innerHTML = "";
+
+  const isItem = typeSelect.value === "item";
+  const list = isItem ? Items : Units;
+
+  list.forEach((p, i) => {
+    const o = document.createElement("option");
+    o.value = i;
+    o.textContent = p.name;
+    UnitSelect.appendChild(o);
+  });
+}
+
+
 show("home");
+
+function addUnit(){
+  const amtVal = +amt.value || 1;
+  const sig = +signed.value;
+  const shinyVal = +shny.value;
+
+  const index = +UnitSelect.value;
+  const isItem = typeSelect.value === "item";
+
+  const baseList = isItem ? Items : Units;
+  const baseItem = baseList[index];
+  if (!baseItem) return;
+
+  let finalBase = baseItem.base;
+
+  if (!isItem) {
+    if (sig > 1 && shinyVal > 1 && UnitsBH[index]) {
+      finalBase = UnitsBH[index].base;
+    } else if (sig > 1 && UnitsSI[index]) {
+      finalBase = UnitsSI[index].base;
+    } else if (shinyVal > 1 && UnitsSH[index]) {
+      finalBase = UnitsSH[index].base;
+    }
+  }
+
+  const val = (finalBase * amtVal).toFixed(2);
+
+  let overlay = "";
+  if (!isItem) {
+    if (sig > 1) overlay += "✍️ ";
+    if (shinyVal > 1) overlay += "✨";
+  }
+
+  const el = document.createElement("div");
+  el.className = "Unit";
+
+  el.innerHTML = `
+    <img src="${baseItem.img}">
+    ${overlay ? `<div class="overlay">${overlay}</div>` : ""}
+    <div>
+      <b>${baseItem.name} x${amtVal}</b>
+      <div style="color:var(--muted);font-size:13px;">
+        ${isItem ? "Item" : "Demand " + baseItem.demand + "/10"}
+      </div>
+    </div>
+    <span class="value">${val}</span>
+  `;
+
+  el.onclick = () => { el.remove(); updateTotals(); };
+
+  document.querySelector(`#${currentSide} .list`).appendChild(el);
+
+  modal.classList.remove("show");
+  updateTotals();
+}
+
+typeSelect.addEventListener("change", () => {
+  const isItem = typeSelect.value === "item";
+
+  // hide Signed + Shiny + their labels
+  signed.style.display = isItem ? "none" : "block";
+  shny.style.display = isItem ? "none" : "block";
+
+  signed.previousElementSibling.style.display = isItem ? "none" : "block";
+  shny.previousElementSibling.style.display = isItem ? "none" : "block";
+
+  if (isItem) {
+    signed.value = "1";
+    shny.value = "1";
+  }
+});
+
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
