@@ -569,11 +569,11 @@ row.style.justifyContent = "center"; // center Normal
     const buttons = [...c.querySelectorAll(".vbtn")];
 
 buttons.forEach((btn, i) => {
-  if (i !== 0) btn.style.display = "none"; // hide shiny/signed/both
+  if (i !== 0) btn.style.display = "none";
 });
 
 const row = c.querySelector(".variant-row");
-row.style.justifyContent = "center"; // center Normal
+row.style.justifyContent = "center";
 
     buttons.forEach(btn => {
       btn.onclick = () => {
@@ -706,7 +706,6 @@ function addUnit(){
 typeSelect.addEventListener("change", () => {
   const isItem = typeSelect.value === "item";
 
-  // hide Signed + Shiny + their labels
   signed.style.display = isItem ? "none" : "block";
   shny.style.display = isItem ? "none" : "block";
 
