@@ -547,7 +547,7 @@ typeSelect.dispatchEvent(new Event("change"));
     const buttons = [...c.querySelectorAll(".vbtn")];
 
 const row = c.querySelector(".variant-row");
-row.style.justifyContent = "center"; // center Normal
+row.style.justifyContent = "center";
 
     buttons.forEach(btn => {
       btn.onclick = () => {
@@ -561,7 +561,8 @@ row.style.justifyContent = "center"; // center Normal
         else if (mode === "signed") list = UnitsSI;
         else if (mode === "shiny") list = UnitsSH;
 
-        shownVal.textContent = list[i].base.toFixed(2);
+        const found = list.find(x => x.name === p.name);
+        shownVal.textContent = (found?.base ?? 0).toFixed(2);
       };
     });
 
@@ -613,7 +614,8 @@ row.style.justifyContent = "center";
         else if (mode === "signed") list = ItemsSI;
         else if (mode === "shiny") list = ItemsSH;
 
-        shownVal.textContent = list[i].base.toFixed(2);
+        const found = list.find(x => x.name === p.name);
+        shownVal.textContent = (found?.base ?? 0).toFixed(2);
       };
     });
 
